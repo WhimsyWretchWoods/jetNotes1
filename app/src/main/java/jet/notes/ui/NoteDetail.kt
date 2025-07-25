@@ -38,9 +38,7 @@ fun NoteDetail(
     noteViewModel: NoteViewModel) {
 
     val existingNote by noteViewModel.getNoteById(noteId).collectAsState(initial = null)
-
-    val existingNote by noteViewModel.getNoteById(noteId).collectAsState(initial = null)
-
+    
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
 
