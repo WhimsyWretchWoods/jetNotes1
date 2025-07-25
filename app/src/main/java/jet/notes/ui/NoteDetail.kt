@@ -39,19 +39,18 @@ fun NoteDetail(
 
     val existingNote by noteViewModel.getNoteById(noteId).collectAsState(initial = null)
 
-    var title by remember {
-        mutableStateOf(existingNote?.title ?: "")
-    }
-    var content by remember {
-        mutableStateOf(existingNote?.content ?: "")
-    }
+    val existingNote by noteViewModel.getNoteById(noteId).collectAsState(initial = null)
+
+    var title by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
 
     LaunchedEffect(existingNote) {
         existingNote?.let { note ->
-            title = note.title
-            content = note.content
+            title = note.title // Update title when existingNote changes
+            content = note.content // Update content when existingNote changes
         }
     }
+
 
     Scaffold( topBar = { TopAppBar(
                 title = {},
