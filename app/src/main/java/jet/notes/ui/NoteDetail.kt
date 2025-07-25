@@ -46,6 +46,13 @@ fun NoteDetail(
         mutableStateOf(existingNote?.content ?: "")
     }
 
+    LaunchedEffect(existingNote) {
+        existingNote?.let { note ->
+            title = note.title
+            content = note.content
+        }
+    }
+
     Scaffold( topBar = { TopAppBar(
                 title = {},
                 navigationIcon = {
