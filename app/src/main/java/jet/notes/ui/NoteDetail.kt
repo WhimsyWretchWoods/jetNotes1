@@ -24,7 +24,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.*
 import androidx.navigation.NavController
 import androidx.compose.runtime.LaunchedEffect
-import java.util.UUID
+
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 import jet.notes.viewmodel.NoteViewModel
 import jet.notes.data.Note
@@ -33,25 +34,25 @@ import jet.notes.data.Note
 @Composable
 fun NoteDetail(
     navController: NavController,
-    noteId: String?,
-    noteViewModel: NoteViewModel
-) {
-    // Observe the currentNote from the ViewModel
-    val currentNote by noteViewModel.currentNote.collectAsState()
+    noteId: String?, 
+    noteViewModel: NoteViewModel) {
 
-    // Use remember to keep the state across recompositions,
-    // initialized from currentNote or empty if new
-    var title by remember(currentNote) { mutableStateOf(currentNote?.title ?: "") }
-    var content by remember(currentNote) { mutableStateOf(currentNote?.content ?: "") }
+    val existingNote by noteViewModel.getNoteById(noteId).collectAsState(initial = null)
 
-    // Trigger loading the note when noteId changes
-    LaunchedEffect(noteId) {
-        noteViewModel.loadNote(noteId)
-    }
+    var title by rememberSaveable { mutableStateOf("") }
+var content by rememberSaveable { mutableStateOf("") }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
+val isExistingNoteLoaded = remember(existingNote) {
+    existingNote != null && title.isEmpty() && content.isEmpty()
+}
+
+if (isExistingNoteLoaded) {
+    title = existingNote?.title ?: ""
+    content = existingNote?.content ?: ""
+}
+
+
+    Scaffold( topBar = { TopAppBar(
                 title = {},
                 navigationIcon = {
                     IconButton(onClick = {
@@ -64,8 +65,7 @@ fun NoteDetail(
                     }
                 },
                 actions = {
-                    // Show delete only if it's an existing note
-                    if (noteId != null && currentNote != null) {
+                    if (noteId != null) {
                         IconButton(onClick = {
                             noteViewModel.deleteNote(noteId)
                             navController.popBackStack()
@@ -75,16 +75,14 @@ fun NoteDetail(
                     }
 
                     IconButton(onClick = {
-                        // Use currentNote.id for updating or generating a new ID for adding
-                        val noteToSave = currentNote?.copy(title = title, content = content)
-                            ?: Note(UUID.randomUUID().toString(), title, content) // New note if currentNote is null
-
-                        if (noteToSave.id == currentNote?.id && currentNote != null) {
-                            // If IDs match, it's an update of an existing note
-                            noteViewModel.updateNote(noteToSave)
+                        if (noteId == null) {
+                            noteViewModel.addNote(Note(title = title, content = content))
                         } else {
-                            // It's a new note, or a new ID was generated
-                            noteViewModel.addNote(noteToSave)
+                            existingNote?.let {
+                                currentNote ->
+                                val updatedNote = currentNote.copy(title = title, content = content)
+                                noteViewModel.updateNote(updatedNote)
+                            }
                         }
                         navController.popBackStack()
                     }) {
@@ -97,8 +95,8 @@ fun NoteDetail(
             )
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues)) {
-            OutlinedTextField(
+        Column (modifier = Modifier.padding(paddingValues)) {
+            OutlinedTextField (
                 modifier = Modifier.fillMaxWidth(),
                 value = title,
                 onValueChange = {
@@ -127,7 +125,7 @@ fun NoteDetail(
                 placeholder = {
                     Text("Note")
                 },
-                colors = OutlinedTextFieldDefaults.colors(
+                colors = OutlinedTextFieldDefaults.colors (
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent
                 )
