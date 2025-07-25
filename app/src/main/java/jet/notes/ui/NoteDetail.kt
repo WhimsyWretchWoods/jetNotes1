@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.*
 import androidx.navigation.NavController
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.saveable.rememberSaveable
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,24 +36,29 @@ import jet.notes.data.Note
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NoteDetail(
-    navController: NavController,
-    noteId: String?, 
-    noteViewModel: NoteViewModel) {
+fun NoteDetail(navController: NavController, noteId: String?, noteViewModel: NoteViewModel) {
 
     val existingNote by noteViewModel.getNoteById(noteId).collectAsState(initial = null)
 
     var title by rememberSaveable { mutableStateOf("") }
-var content by rememberSaveable { mutableStateOf("") }
+    var content by rememberSaveable { mutableStateOf("") }
 
-val isExistingNoteLoaded = remember(existingNote) {
-    existingNote != null && title.isEmpty() && content.isEmpty()
-}
+    val isExistingNoteLoaded = remember(existingNote) {
+        existingNote != null && title.isEmpty() && content.isEmpty()
+    }
 
-if (isExistingNoteLoaded) {
-    title = existingNote?.title ?: ""
-    content = existingNote?.content ?: ""
-}
+    if (isExistingNoteLoaded) {
+        title = existingNote?.title ?: ""
+        content = existingNote?.content ?: ""
+    }
+
+    val formattedDate = remember(existingNote?.timestamp) {
+        existingNote?.timestamp?.let {
+            val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+            sdf.format(Date(it))
+        } ?: ""
+    }
+
 
 
     Scaffold( topBar = { TopAppBar(
@@ -98,6 +105,13 @@ if (isExistingNoteLoaded) {
         }
     ) { paddingValues ->
         Column (modifier = Modifier.padding(paddingValues)) {
+            if(noteId != null && formattedDate.isNotEmpty()) {
+                Text(
+                    text = "$formattedDate",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
+            }
             OutlinedTextField (
                 modifier = Modifier.fillMaxWidth(),
                 value = title,
