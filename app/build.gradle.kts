@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose") version "2.2.0"
+    id("kotlin-kapt")
 }
 
 android {
@@ -46,6 +47,10 @@ android {
 dependencies {
     implementation("androidx.compose.ui:ui:1.9.0-beta02")
     implementation("androidx.compose.material3:material3:1.4.0-alpha18")
+    implementation("androidx.navigation:navigation-compose:2.9.0")
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.compose.material:material-icons-core:1.7.8")
+
+    implementation("androidx.room:room-runtime:2.7.2")
+	kapt("androidx.room:room-compiler:2.7.2")
 }
