@@ -5,14 +5,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import jet.notes.data.Note
 import jet.notes.data.NoteRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.util.UUID
+
 class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
 
     val notes: StateFlow<List<Note>> = repository.allNotes
@@ -22,28 +19,21 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
             initialValue = emptyList()
         )
 
-    // This will hold the note currently being viewed/edited in NoteDetail
-    private val _currentNote = MutableStateFlow<Note?>(null)
-    val currentNote: StateFlow<Note?> = _currentNote.asStateFlow()
-
-    // Function to load a note into _currentNote state
-    fun loadNote(noteId: String?) {
-        viewModelScope.launch {
-            if (noteId.isNullOrEmpty()) {
-                // It's a new note, create a fresh one with a new ID
-                _currentNote.value = Note(
-                    id = UUID.randomUUID().toString(), // Generate a new ID for a new note
-                    title = "",
-                    content = "",
-                    timestamp = System.currentTimeMillis()
+    fun getNoteById(noteId: String?): StateFlow<Note?> {
+        if (noteId.isNullOrEmpty()) {
+            return kotlinx.coroutines.flow.MutableStateFlow<Note?>(null)
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = null
                 )
-            } else {
-                // Load existing note from the repository
-                repository.getNoteById(noteId).collectLatest { note ->
-                    _currentNote.value = note
-                }
-            }
         }
+        return repository.getNoteById(noteId)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = null
+            )
     }
 
     fun addNote(note: Note) {
