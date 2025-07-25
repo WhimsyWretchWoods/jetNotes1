@@ -104,13 +104,6 @@ fun NoteDetail(navController: NavController, noteId: String?, noteViewModel: Not
         }
     ) { paddingValues ->
         Column (modifier = Modifier.padding(paddingValues)) {
-            if(noteId != null && formattedDate.isNotEmpty()) {
-                Text(
-                    text = "$formattedDate",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
-            }
             OutlinedTextField (
                 modifier = Modifier.fillMaxWidth(),
                 value = title,
