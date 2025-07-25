@@ -34,8 +34,8 @@ import jet.notes.data.Note
 @Composable
 fun NoteDetail(
     navController: NavController,
-    noteId: String?, noteViewModel:
-    NoteViewModel) {
+    noteId: String?, 
+    noteViewModel: NoteViewModel) {
 
     val existingNote by noteViewModel.getNoteById(noteId).collectAsState(initial = null)
 
@@ -44,11 +44,6 @@ fun NoteDetail(
     }
     var content by remember {
         mutableStateOf(existingNote?.content ?: "")
-    }
-
-    LaunchedEffect(existingNote) {
-        title = existingNote?.title ?: ""
-        content = existingNote?.content ?: ""
     }
 
     Scaffold( topBar = { TopAppBar(
