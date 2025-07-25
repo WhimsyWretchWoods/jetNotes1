@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.*
 import androidx.navigation.NavController
 import androidx.compose.runtime.LaunchedEffect
+import java.util.UUID
 
 import jet.notes.viewmodel.NoteViewModel
 import jet.notes.data.Note
