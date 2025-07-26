@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose") version "2.2.0"
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -52,5 +52,5 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core:1.7.8")
 
     implementation("androidx.room:room-runtime:2.7.2")
-	kapt("androidx.room:room-compiler:2.7.2")
+    ksp("androidx.room:room-compiler:2.7.2")
 }
