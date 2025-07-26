@@ -8,6 +8,7 @@ import jet.notes.data.NoteDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull // Import this
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -21,7 +22,6 @@ class NoteViewModel(private val noteDao: NoteDao) : ViewModel() {
             initialValue = emptyList()
         )
 
-    // Change this to return Flow
     fun getNoteById(noteId: String): Flow<Note?> {
         return noteDao.getNoteById(noteId)
     }
@@ -40,7 +40,10 @@ class NoteViewModel(private val noteDao: NoteDao) : ViewModel() {
 
     fun deleteNote(noteId: String) {
         viewModelScope.launch {
-            noteDao.getNoteById(noteId)?.let { noteDao.delete(it) }
+            // Collect the first value from the Flow, or null if it completes without emitting
+            noteDao.getNoteById(noteId).firstOrNull()?.let { note ->
+                noteDao.delete(note)
+            }
         }
     }
 
