@@ -38,18 +38,14 @@ import jet.notes.data.Note
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteDetail(navController: NavController, noteId: String?, noteViewModel: NoteViewModel) {
-
+    
     val existingNote by noteViewModel.getNoteById(noteId).collectAsState(initial = null)
 
-    var title by rememberSaveable { mutableStateOf("") }
-    var content by rememberSaveable { mutableStateOf("") }
+    val initialTitle = existingNote?.title ?: ""
+    val initialContent = existingNote?.content ?: ""
 
-    LaunchedEffect(existingNote) {
-        existingNote?.let { note ->
-            title = note.title
-            content = note.content
-        }
-    }
+    var title by rememberSaveable(existingNote?.id) { mutableStateOf(initialTitle) }
+    var content by rememberSaveable(existingNote?.id) { mutableStateOf(initialContent) }
 
     val formattedDate = remember(existingNote?.timestamp) {
         existingNote?.timestamp?.let {
