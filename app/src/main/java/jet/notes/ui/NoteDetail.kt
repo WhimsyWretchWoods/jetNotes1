@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,7 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import jet.notes.data.Note
 import jet.notes.viewmodel.NoteViewModel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flowOf // Import this
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,16 +38,15 @@ fun NoteDetail(
     noteId: String?,
     noteViewModel: NoteViewModel
 ) {
-    var note by remember { mutableStateOf<Note?>(null) }
-
-    LaunchedEffect(noteId) {
-        if (noteId != null) {
-            launch {
-                note = noteViewModel.getNoteById(noteId)
-            }
-        }
+    // Correctly collect the Flow here
+    val noteFlow = if (noteId != null) {
+        noteViewModel.getNoteById(noteId)
+    } else {
+        flowOf(null) // Emit null for new notes
     }
+    val note by noteFlow.collectAsState(initial = null) // Collect as state
 
+    // Initialize title and content based on the 'note' state, which now updates reactively
     var title by remember(note) {
         mutableStateOf(note?.title ?: "")
     }
@@ -79,6 +79,12 @@ fun NoteDetail(
                     }
 
                     IconButton(onClick = {
+                        if (title.isBlank() && content.isBlank()) {
+                            // Don't save empty notes if both fields are blank
+                            navController.popBackStack()
+                            return@IconButton
+                        }
+
                         if (noteId == null) {
                             noteViewModel.addNote(Note(title = title, content = content))
                         } else {
