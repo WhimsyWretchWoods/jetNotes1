@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import jet.notes.data.Note
 import jet.notes.data.NoteDao
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -20,15 +21,9 @@ class NoteViewModel(private val noteDao: NoteDao) : ViewModel() {
             initialValue = emptyList()
         )
 
-    fun getNoteById(noteId: String?): Note? {
-        if (noteId.isNullOrEmpty()) {
-            return null
-        }
-        var note: Note? = null
-        viewModelScope.launch {
-            note = noteDao.getNoteById(noteId)
-        }
-        return note
+    // Change this to return Flow
+    fun getNoteById(noteId: String): Flow<Note?> {
+        return noteDao.getNoteById(noteId)
     }
 
     fun addNote(note: Note) {
