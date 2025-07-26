@@ -20,15 +20,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.*
 import androidx.navigation.NavController
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.saveable.rememberSaveable
-import java.text.SimpleDateFormat
-import java.util.*
-
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -36,34 +31,65 @@ import jet.notes.viewmodel.NoteViewModel
 import jet.notes.data.Note
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun NoteDetail(navController: NavController, noteId: String?, noteViewModel: NoteViewModel) {
-    
-    val existingNote by noteViewModel.getNoteById(noteId).collectAsState(initial = null)
+package jet.notes.ui
 
-    var title by rememberSaveable { mutableStateOf("") }
-    var content by rememberSaveable { mutableStateOf("") }
-    
-    LaunchedEffect(key1 = existingNote) {
-        if (existingNote != null) {
-            title = existingNote!!.title
-            content = existingNote!!.content
-        } else if (noteId == null) {
-            title = ""
-            content = ""
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
+import jet.notes.data.Note
+import jet.notes.viewmodel.NoteViewModel
+import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NoteDetail(
+    navController: NavController,
+    noteId: String?,
+    noteViewModel: NoteViewModel
+) {
+    var note by remember { mutableStateOf<Note?>(null) }
+
+    LaunchedEffect(noteId) {
+        if (noteId != null) {
+            launch {
+                note = noteViewModel.getNoteById(noteId)
+            }
         }
     }
-    
-    val formattedDate = remember(existingNote?.timestamp) {
-        existingNote?.timestamp?.let {
-            val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
-            sdf.format(Date(it))
-        } ?: ""
+
+    var title by remember(note) {
+        mutableStateOf(note?.title ?: "")
+    }
+    var content by remember(note) {
+        mutableStateOf(note?.content ?: "")
     }
 
-
-
-    Scaffold( topBar = { TopAppBar(
+    Scaffold(
+        topBar = {
+            TopAppBar(
                 title = {},
                 navigationIcon = {
                     IconButton(onClick = {
@@ -89,8 +115,7 @@ fun NoteDetail(navController: NavController, noteId: String?, noteViewModel: Not
                         if (noteId == null) {
                             noteViewModel.addNote(Note(title = title, content = content))
                         } else {
-                            existingNote?.let {
-                                currentNote ->
+                            note?.let { currentNote ->
                                 val updatedNote = currentNote.copy(title = title, content = content)
                                 noteViewModel.updateNote(updatedNote)
                             }
@@ -106,8 +131,8 @@ fun NoteDetail(navController: NavController, noteId: String?, noteViewModel: Not
             )
         }
     ) { paddingValues ->
-        Column (modifier = Modifier.padding(paddingValues)) {
-            OutlinedTextField (
+        Column(modifier = Modifier.padding(paddingValues)) {
+            OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = title,
                 onValueChange = {
@@ -136,7 +161,7 @@ fun NoteDetail(navController: NavController, noteId: String?, noteViewModel: Not
                 placeholder = {
                     Text("Note")
                 },
-                colors = OutlinedTextFieldDefaults.colors (
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent
                 )
