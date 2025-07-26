@@ -45,7 +45,7 @@ fun NoteDetail(navController: NavController, noteId: String?, noteViewModel: Not
     var content by rememberSaveable { mutableStateOf("") }
     
     LaunchedEffect(existingNote) {
-        existingNote!!.let { note ->
+        existingNote?.let { note ->
             title = note.title
             content = note.content
         }
