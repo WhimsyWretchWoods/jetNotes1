@@ -24,14 +24,14 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
             return kotlinx.coroutines.flow.MutableStateFlow<Note?>(null)
                 .stateIn(
                     scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
+                    started = SharingStarted.Lazily,
                     initialValue = null
                 )
         }
         return repository.getNoteById(noteId)
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
+                started = SharingStarted.Lazily,
                 initialValue = null
             )
     }
