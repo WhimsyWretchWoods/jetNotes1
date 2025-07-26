@@ -41,12 +41,15 @@ fun NoteDetail(navController: NavController, noteId: String?, noteViewModel: Not
     
     val existingNote by noteViewModel.getNoteById(noteId).collectAsState(initial = null)
 
-    val initialTitle = existingNote?.title ?: ""
-    val initialContent = existingNote?.content ?: ""
+    var title by rememberSaveable { mutableStateOf("") }
+var content by rememberSaveable { mutableStateOf("") }
 
-    var title by rememberSaveable(existingNote?.id) { mutableStateOf(initialTitle) }
-    var content by rememberSaveable(existingNote?.id) { mutableStateOf(initialContent) }
-
+LaunchedEffect(existingNote) {
+    if (existingNote != null && title.isBlank() && content.isBlank()) {
+        title = existingNote.title
+        content = existingNote.content
+    }
+}
     val formattedDate = remember(existingNote?.timestamp) {
         existingNote?.timestamp?.let {
             val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
