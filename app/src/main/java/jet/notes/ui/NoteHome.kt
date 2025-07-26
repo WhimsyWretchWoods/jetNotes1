@@ -42,7 +42,7 @@ fun NoteHome(navController: NavController, noteViewModel: NoteViewModel) {
             }
         }
     ) { paddingValues ->
-        val notes by noteViewModel.notes.collectAsState(initial = emptyList())
+        val notes by noteViewModel.notes.collectAsState()
         if(notes.isEmpty()) {
             
         } else {
