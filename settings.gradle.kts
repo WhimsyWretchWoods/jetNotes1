@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "jetNotes"
+rootProject.name = "QuickNotes"
 include(":app")
