@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "jet.notes"
+    namespace = "com.quicknotes"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "jet.notes"
+        applicationId = "com.quicknotes"
         minSdk = 28
         targetSdk = 35
         versionCode = 1
